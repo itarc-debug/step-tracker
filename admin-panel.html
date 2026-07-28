@@ -1,1 +1,451 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step Tracker Pro - Admin Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+            color: white;
+            padding: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 2em;
+            font-weight: bold;
+        }
+
+        .logout-btn {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .content {
+            padding: 30px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        .controls input {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+        }
+
+        .controls button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-export {
+            background: #10b981;
+            color: white;
+        }
+
+        .btn-export:hover {
+            background: #059669;
+        }
+
+        .users-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .user-card {
+            background: #f8f9fa;
+            border: 2px solid #e5e7eb;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .user-card:hover {
+            border-color: #dc2626;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+        }
+
+        .user-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #dc2626;
+        }
+
+        .user-details h3 {
+            margin: 0;
+            font-size: 1.2em;
+            color: #333;
+        }
+
+        .user-details p {
+            margin: 3px 0;
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .user-records {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid #e5e7eb;
+        }
+
+        .records-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+
+        .records-table th {
+            background: #f3f4f6;
+            padding: 10px;
+            text-align: left;
+            font-weight: bold;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .records-table td {
+            padding: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .records-table img {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .modal-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 50;
+        }
+
+        .modal-backdrop.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal {
+            background: white;
+            border-radius: 15px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow: auto;
+        }
+
+        .modal-image {
+            width: 100%;
+            max-height: 500px;
+            object-fit: contain;
+        }
+
+        .no-users {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #dcfce7;
+            color: #15803d;
+            border-left: 4px solid #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div>
+                <h1><i class="fas fa-shield-alt"></i> Admin Panel</h1>
+            </div>
+            <button class="logout-btn" onclick="logoutAdmin()">
+                <i class="fas fa-sign-out-alt"></i> ออกจากระบบ
+            </button>
+        </div>
+
+        <div class="content">
+            <div class="alert alert-success" id="alertBox"></div>
+
+            <div class="controls">
+                <input type="text" id="groupFilter" placeholder="ค้นหาตาม Group ID...">
+                <input type="text" id="userSearch" placeholder="ค้นหาตามชื่อผู้ใช้...">
+                <button class="btn-export" onclick="exportToExcel()">
+                    <i class="fas fa-download"></i> Export Excel
+                </button>
+            </div>
+
+            <div class="users-list" id="usersList">
+                <div class="no-users">
+                    <i class="fas fa-spinner fa-spin"></i>
+                    <p>กำลังโหลดข้อมูล...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="imageModal" class="modal-backdrop">
+        <div class="modal">
+            <img id="modalImage" class="modal-image">
+        </div>
+    </div>
+
+    <script type="module">
+        if (!sessionStorage.getItem('adminAuthenticated')) {
+            window.location.href = 'admin-login.html';
+        }
+
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, onSnapshot, query, where, orderBy, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKENwboUqtscQj-OhzyhBYi7FoujQp4jM",
+            authDomain: "step-tracker-dfdbc.firebaseapp.com",
+            projectId: "step-tracker-dfdbc",
+            storageBucket: "step-tracker-dfdbc.firebasestorage.app",
+            messagingSenderId: "1082130109232",
+            appId: "1:1082130109232:web:41cd374f84cbd34562aef5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        let allUsers = [];
+        let allRecords = {};
+
+        function showAlert(message) {
+            const alertBox = document.getElementById('alertBox');
+            alertBox.innerText = message;
+            alertBox.classList.add('show');
+            setTimeout(() => alertBox.classList.remove('show'), 5000);
+        }
+
+        function loadUsers() {
+            const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+            onSnapshot(q, async (querySnapshot) => {
+                allUsers = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                for (let user of allUsers) {
+                    const recordsQuery = query(collection(db, "records"), where("userId", "==", user.id));
+                    const recordsSnapshot = await getDocs(recordsQuery);
+                    allRecords[user.id] = recordsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                }
+                
+                renderUsers(allUsers);
+            });
+        }
+
+        function renderUsers(users) {
+            const usersList = document.getElementById('usersList');
+            
+            if (users.length === 0) {
+                usersList.innerHTML = '<div class="no-users"><i class="fas fa-users"></i><p>ไม่มีผู้ใช้งาน</p></div>';
+                return;
+            }
+
+            usersList.innerHTML = users.map(user => {
+                const records = allRecords[user.id] || [];
+                const totalSteps = records.reduce((sum, r) => sum + (r.steps || 0), 0);
+
+                return `
+                    <div class="user-card">
+                        <div class="user-header">
+                            <div class="user-info">
+                                <img src="${user.avatar || 'https://placehold.co/60x60/f1f5f9/94a3b8?text=?'}" class="user-avatar">
+                                <div class="user-details">
+                                    <h3>${user.name || 'ผู้ใช้ไม่ระบุชื่อ'}</h3>
+                                    <p><strong>Email:</strong> ${user.email || '-'}</p>
+                                    <p><strong>Group:</strong> ${user.groupId || 'default'}</p>
+                                </div>
+                            </div>
+                            <button class="btn-delete" onclick="deleteUser('${user.id}', '${user.name}')">
+                                <i class="fas fa-trash"></i> ลบ
+                            </button>
+                        </div>
+
+                        <div class="user-records">
+                            <p><strong>📊 สถิติ:</strong> รวม ${totalSteps.toLocaleString('th-TH')} ก้าว | บันทึก ${records.length} ครั้ง</p>
+                            ${records.length > 0 ? `
+                                <table class="records-table">
+                                    <thead>
+                                        <tr>
+                                            <th>วันที่</th>
+                                            <th>จำนวนก้าว</th>
+                                            <th>หลักฐาน</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        ${records.slice(0, 5).map(record => `
+                                            <tr>
+                                                <td>${new Date(record.date).toLocaleDateString('th-TH')}</td>
+                                                <td>${record.steps.toLocaleString('th-TH')}</td>
+                                                <td><img src="${record.imageURL}" onclick="viewImage('${record.imageURL}')"></td>
+                                            </tr>
+                                        `).join('')}
+                                    </tbody>
+                                </table>
+                            ` : '<p style="color: #999; font-size: 0.9em;">ยังไม่มีบันทึก</p>'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        window.viewImage = (url) => {
+            document.getElementById('modalImage').src = url;
+            document.getElementById('imageModal').classList.add('show');
+        };
+
+        document.getElementById('imageModal').addEventListener('click', () => {
+            document.getElementById('imageModal').classList.remove('show');
+        });
+
+        window.deleteUser = async (userId, userName) => {
+            if (!confirm(`ยืนยันการลบผู้ใช้ "${userName}"?`)) return;
+
+            try {
+                const records = allRecords[userId] || [];
+                for (let record of records) {
+                    await deleteDoc(doc(db, "records", record.id));
+                }
+                await deleteDoc(doc(db, "users", userId));
+                showAlert('ลบผู้ใช้เรียบร้อยแล้ว');
+            } catch (error) {
+                showAlert('เกิดข้อผิดพลาด: ' + error.message);
+            }
+        };
+
+        window.exportToExcel = () => {
+            const data = allUsers.map(user => ({
+                'ชื่อ': user.name || 'ไม่ระบุ',
+                'Email': user.email || '-',
+                'Group': user.groupId || 'default',
+                'รวมก้าว': (allRecords[user.id] || []).reduce((sum, r) => sum + (r.steps || 0), 0),
+                'จำนวนบันทึก': (allRecords[user.id] || []).length
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(data);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "Users");
+            XLSX.writeFile(wb, `step_tracker_${new Date().toISOString().split('T')[0]}.xlsx`);
+            showAlert('Export เรียบร้อยแล้ว');
+        };
+
+        document.getElementById('groupFilter').addEventListener('input', filter);
+        document.getElementById('userSearch').addEventListener('input', filter);
+
+        function filter() {
+            const groupFilter = document.getElementById('groupFilter').value.toLowerCase();
+            const userSearch = document.getElementById('userSearch').value.toLowerCase();
+
+            const filtered = allUsers.filter(user =>
+                (user.groupId || 'default').toLowerCase().includes(groupFilter) &&
+                (user.name || '').toLowerCase().includes(userSearch)
+            );
+
+            renderUsers(filtered);
+        }
+
+        window.logoutAdmin = () => {
+            if (confirm('ออกจากระบบหรือไม่?')) {
+                sessionStorage.removeItem('adminAuthenticated');
+                window.location.href = 'index.html';
+            }
+        };
+
+        loadUsers();
+    </script>
+</body>
+</html>
