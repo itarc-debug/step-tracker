@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Step Tracker Pro - Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 50px 40px;
+            width: 100%;
+            max-width: 500px;
+            animation: slideUp 0.5s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .login-header i {
+            font-size: 4em;
+            color: #667eea;
+            display: block;
+            margin-bottom: 15px;
+        }
+
+        .login-header h1 {
+            font-size: 2.5em;
+            color: #333;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .login-header p {
+            color: #999;
+            font-size: 0.95em;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: bold;
+            font-size: 0.95em;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .avatar-section {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .avatar-preview {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            border: 3px solid #667eea;
+            object-fit: cover;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            color: #ddd;
+        }
+
+        .avatar-preview.has-image {
+            border-color: #10b981;
+        }
+
+        .file-input-label {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #5568d3;
+        }
+
+        #avatarInput {
+            display: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1em;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .error-message {
+            background: #fee2e2;
+            color: #991b1b;
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: none;
+            border-left: 4px solid #dc2626;
+        }
+
+        .error-message.show {
+            display: block;
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+        }
+
+        .loading i {
+            font-size: 2em;
+            color: #667eea;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .phone-input-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .phone-prefix {
+            width: 80px;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            background: #f9f9f9;
+            font-weight: bold;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .phone-input-group input {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <i class="fas fa-shoe-prints"></i>
+            <h1>Step Tracker Pro</h1>
+            <p>สร้างโปรไฟล์และเริ่มใช้งาน</p>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <!-- Avatar Section -->
+            <div class="avatar-section">
+                <div class="avatar-preview" id="avatarPreview">
+                    <i class="fas fa-user"></i>
+                </div>
+                <label for="avatarInput" class="file-input-label">
+                    <i class="fas fa-camera"></i> เลือกรูปภาพ
+                </label>
+                <input type="file" id="avatarInput" accept="image/*">
+                <p style="font-size: 0.85em; color: #999; margin-top: 10px;">ไม่บังคับ</p>
+            </div>
+
+            <!-- Name -->
+            <div class="form-group">
+                <label for="userName">
+                    <i class="fas fa-user-circle"></i> ชื่อ <span style="color: red;">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="userName" 
+                    placeholder="กรุณาใส่ชื่อของคุณ" 
+                    required
+                >
+            </div>
+
+            <!-- Phone -->
+            <div class="form-group">
+                <label for="userPhone">
+                    <i class="fas fa-mobile-alt"></i> เบอร์มือถือ <span style="color: red;">*</span>
+                </label>
+                <div class="phone-input-group">
+                    <div class="phone-prefix">+66</div>
+                    <input 
+                        type="tel" 
+                        id="userPhone" 
+                        placeholder="กรุณาใส่เบอร์โทร" 
+                        pattern="[0-9]{9}"
+                        maxlength="9"
+                        required
+                    >
+                </div>
+                <p style="font-size: 0.75em; color: #999; margin-top: 5px;">ใส่เบอร์ 9 หลักเท่านั้น เช่น 812345678</p>
+            </div>
+
+            <div class="loading" id="loadingIndicator">
+                <i class="fas fa-spinner"></i>
+                <p style="color: #666; margin-top: 10px;">กำลังสร้างโปรไฟล์...</p>
+            </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">
+                <i class="fas fa-sign-in-alt"></i> เข้าใช้งาน
+            </button>
+        </form>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCKENwboUqtscQj-OhzyhBYi7FoujQp4jM",
+            authDomain: "step-tracker-dfdbc.firebaseapp.com",
+            projectId: "step-tracker-dfdbc",
+            storageBucket: "step-tracker-dfdbc.firebasestorage.app",
+            messagingSenderId: "1082130109232",
+            appId: "1:1082130109232:web:41cd374f84cbd34562aef5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const storage = getStorage(app);
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const groupId = urlParams.get('group') || 'default';
+
+        let avatarBase64 = null;
+
+        // Avatar Upload Handler
+        document.getElementById('avatarInput').addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                // Check file size
+                if (file.size > 5 * 1024 * 1024) {
+                    showError('รูปภาพต้องมีขนาดไม่เกิน 5MB');
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    avatarBase64 = event.target.result;
+                    const preview = document.getElementById('avatarPreview');
+                    preview.innerHTML = `<img src="${avatarBase64}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">`;
+                    preview.classList.add('has-image');
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        function showError(message) {
+            const errorBox = document.getElementById('errorMessage');
+            errorBox.innerText = message;
+            errorBox.classList.add('show');
+            setTimeout(() => errorBox.classList.remove('show'), 5000);
+        }
+
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const name = document.getElementById('userName').value.trim();
+            const phone = document.getElementById('userPhone').value.trim();
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loginBtn = document.getElementById('loginBtn');
+
+            // Validation
+            if (!name) {
+                showError('กรุณาใส่ชื่อ');
+                return;
+            }
+
+            if (!phone || phone.length !== 9) {
+                showError('กรุณาใส่เบอร์โทร 9 หลัก');
+                return;
+            }
+
+            // Check if phone number already exists
+            try {
+                loadingIndicator.style.display = 'block';
+                loginBtn.disabled = true;
+
+                const fullPhone = `+66${phone}`;
+                
+                // Search for existing user with this phone
+                const existingUserDoc = await getDoc(doc(db, "phones", phone));
+                
+                if (existingUserDoc.exists()) {
+                    showError('เบอร์โทรนี้มีผู้ใช้แล้ว');
+                    loadingIndicator.style.display = 'none';
+                    loginBtn.disabled = false;
+                    return;
+                }
+
+                // Generate user ID
+                const userId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+                
+                // Upload avatar if exists
+                let avatarURL = '';
+                if (avatarBase64) {
+                    const response = await fetch(avatarBase64);
+                    const blob = await response.blob();
+                    const storageRef = ref(storage, `avatars/${phone}/${Date.now()}`);
+                    await uploadBytes(storageRef, blob);
+                    avatarURL = await getDownloadURL(storageRef);
+                }
+
+                // Create user document
+                await setDoc(doc(db, "users", userId), {
+                    id: userId,
+                    groupId: groupId,
+                    name: name,
+                    phone: fullPhone,
+                    avatar: avatarURL,
+                    createdAt: new Date().toISOString()
+                });
+
+                // Store phone reference
+                await setDoc(doc(db, "phones", phone), {
+                    userId: userId
+                });
+
+                // Save to localStorage
+                localStorage.setItem(`stepTracker_userId_${groupId}`, userId);
+                localStorage.setItem(`stepTracker_userPhone_${groupId}`, phone);
+
+                // Show success
+                loadingIndicator.innerHTML = '<i class="fas fa-check-circle"></i><p style="color: #22c55e; margin-top: 10px;">✓ สร้างโปรไฟล์เรียบร้อย</p>';
+
+                // Redirect after 1 second
+                setTimeout(() => {
+                    window.location.href = 'index.html?group=' + groupId;
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error:', error);
+                showError('เกิดข้อผิดพลาด: ' + error.message);
+                loadingIndicator.style.display = 'none';
+                loginBtn.disabled = false;
+            }
+        }
+
+        // Check if already logged in
+        const existingUserId = localStorage.getItem(`stepTracker_userId_${groupId}`);
+        if (existingUserId) {
+            window.location.href = 'index.html?group=' + groupId;
+        }
+
+        // Focus on name input
+        document.getElementById('userName').focus();
+    </script>
+</body>
+</html>
